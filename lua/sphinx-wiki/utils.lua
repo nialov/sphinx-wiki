@@ -60,7 +60,6 @@ end
 M.wiki = function()
     local proj_wiki_file = vim.fn.system("projwiki")
     if not proj_wiki_file or #proj_wiki_file == 0 then return end
-    print(proj_wiki_file)
     vim.cmd("e" .. proj_wiki_file)
 end
 
