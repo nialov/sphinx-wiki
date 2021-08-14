@@ -41,6 +41,11 @@ M.setup = function()
     -- Resolve path to sphinx-build executable
     local sphinx_path = syspython_bin .. "/sphinx-build"
 
+    -- Check it
+    if vim.fn.executable(sphinx_path) ~= 1 then
+        error(string.format("%s should be executable.", sphinx_path))
+    end
+
     -- Resolve full command to build wiki
     local sphinx_args = wikipath .. " ~/sphinx_wiki_html -b html"
     local sphinx_full_cmd = sphinx_path .. " " .. sphinx_args
