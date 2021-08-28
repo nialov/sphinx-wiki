@@ -5,9 +5,14 @@ local column_config = "rc.report.completed.columns=project,description"
 local column_label_config = "rc.report.completed.labels=Project,Description"
 local today_config = "end.after:now-24hour"
 
-local full_completed_cmd = string.format("%s %s %s %s completed", task,
-                                         column_config, column_label_config,
-                                         today_config)
+-- For plain-text table output
+local full_completed_cmd_tbl = string.format("%s %s %s %s completed", task,
+                                             column_config, column_label_config,
+                                             today_config)
+-- For json output
+local full_completed_cmd_json = string.format("%s %s %s %s export", task,
+                                              column_config,
+                                              column_label_config, today_config)
 
 function M.check_task_executable()
     if vim.fn.executable(task) ~= 1 then
@@ -16,9 +21,9 @@ function M.check_task_executable()
     end
 end
 
-function M.report_completed_tasks()
+function M.report_completed_tasks_tbl()
 
-    local cmd_result_tbl = vim.fn.systemlist(full_completed_cmd)
+    local cmd_result_tbl = vim.fn.systemlist(full_completed_cmd_tbl)
     -- Check if system command errored
     if vim.v.shell_error ~= 0 then error("Task completion report failed.") end
     -- Record if start of wanted lines is found
@@ -37,7 +42,21 @@ function M.report_completed_tasks()
         end
     end
     return vim.fn.join(report_table, "\n") .. "\n"
-
 end
+
+function M.report_completed_tasks_json()
+
+    local cmd_result_json = vim.fn.system(full_completed_cmd_json)
+    -- Check if system command errored
+    if vim.v.shell_error ~= 0 then error("Task completion report failed.") end
+    -- local decoded_result = vim.fn.json_decode(cmd_result_json)
+    -- for _, tbl in pairs(decoded_result) do
+
+    -- end
+    -- Record if start of wanted lines is found
+    return cmd_result_json
+end
+
+-- print(vim.inspect(M.report_completed_tasks_json()))
 
 return M
