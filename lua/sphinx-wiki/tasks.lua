@@ -5,7 +5,7 @@ local column_config = "rc.report.completed.columns=project,description"
 local column_label_config = "rc.report.completed.labels=Project,Description"
 local today_config = "end.after:now-24hour"
 
-local full_completed_cmd = string.format("%s %s %s completed", task,
+local full_completed_cmd = string.format("%s %s %s %s completed", task,
                                          column_config, column_label_config,
                                          today_config)
 
