@@ -21,11 +21,15 @@ function M.check_task_executable()
     end
 end
 
+-- Report completed taskwarrior tasks with a plain-text list.
 function M.report_completed_tasks_tbl()
 
     local cmd_result_tbl = vim.fn.systemlist(full_completed_cmd_tbl)
     -- Check if system command errored
-    if vim.v.shell_error ~= 0 then error("Task completion report failed.") end
+    if vim.v.shell_error ~= 0 then
+        print("Task completion report failed or none completed within 48 hours.")
+        return ""
+    end
     -- Record if start of wanted lines is found
     local start_found = false
     -- Collect wanted lines to report_table
@@ -48,7 +52,9 @@ function M.report_completed_tasks_json()
 
     local cmd_result_json = vim.fn.system(full_completed_cmd_json)
     -- Check if system command errored
-    if vim.v.shell_error ~= 0 then error("Task completion report failed.") end
+    if vim.v.shell_error ~= 0 then
+        print("Task completion report failed or none completed within 48 hours.")
+    end
     -- local decoded_result = vim.fn.json_decode(cmd_result_json)
     -- for _, tbl in pairs(decoded_result) do
 
