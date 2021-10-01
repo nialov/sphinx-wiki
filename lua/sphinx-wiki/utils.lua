@@ -13,14 +13,19 @@ local inkscape_img = function(img_filename, make_copy)
     end
 
     if make_copy then
-
         -- Copy template to img_filename
         vim.cmd(string.format("!cp %s %s", template_path, img_filename))
     end
+    local dispatch = "Dispatch"
 
+    local prefix
+    if vim.fn.exists(string.format(":%s", dispatch)) == 1 then
+        prefix = dispatch .. " "
+    else
+        prefix = "!"
+    end
     -- Start inkscape with img_filename
-    vim.cmd(string.format("!inkscape %s", img_filename))
-
+    vim.cmd(string.format("%sinkscape %s", prefix, img_filename))
 end
 
 local get_img_path_at_current_line = function()
