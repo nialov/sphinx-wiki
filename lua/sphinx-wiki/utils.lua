@@ -4,6 +4,25 @@ local template_path = path:new("~/sphinx_wiki/template.svg")
 
 local M = {}
 
+M.vimwiki_env = "VIMWIKI"
+M.vimwiki_html_env = "VIMWIKI_HTML"
+
+M.sphinx_autobuild = "sphinx-autobuild"
+M.sphinx_build = "sphinx-build"
+
+M.check_env_variables = function(wikipath) return wikipath and #wikipath > 0 end
+
+M.check_paths = function(wikipath) return vim.fn.isdirectory(wikipath) == 1 end
+
+M.check_wikienv = function(vimwiki_env, wikipath)
+    if not M.check_env_variables(vimwiki_env) then
+        error(vimwiki_env .. " must be non-empty defined env variable.")
+    end
+    if not M.check_paths(wikipath) then
+        error(string.format("Wiki directory at %s must exist.", wikipath))
+    end
+end
+
 local inkscape_img = function(img_filename, make_copy)
     -- Check that template svg exists.
 
@@ -52,13 +71,23 @@ local get_img_path_at_current_line = function()
     return img_filename
 end
 
+M.resolve_matching_html_file = function()
+    -- Get absolute path to current file
+    local curr_file = vim.fn.expand('%:p')
+    -- Get path to rst wiki and built wiki
+    local wikipath, wikipath_html = M.resolve_wiki_paths()
+
+    -- Substitute rst path to the built html path
+    local html_file_base = vim.fn.substitute(curr_file, wikipath, wikipath_html,
+                                             '')
+    -- Substitute extension
+    local html_file = vim.fn.substitute(html_file_base, '.rst', '.html', '')
+    return html_file
+end
+
 M.open_wiki_html = function()
-    local curr_file = vim.fn.expand('%')
-    local html_file_base = vim.fn.substitute(curr_file, 'sphinx_wiki',
-                                             'sphinx_wiki_html', '')
-    local html_file = '~/' ..
-                          vim.fn.substitute(html_file_base, '.rst', '.html', '')
-    print(html_file)
+    local html_file = M.resolve_matching_html_file()
+    print(string.format("Opening html file at %s", html_file))
     vim.fn.system('xdg-open ' .. html_file)
 end
 
@@ -71,7 +100,7 @@ end
 M.wiki_img_show = function()
     local img_filename = get_img_path_at_current_line()
     -- Check if img exists at path
-    if vim.fn.filereadable(tostring(img_filename)) == 0 then
+    if not img_filename or vim.fn.filereadable(tostring(img_filename)) == 0 then
         -- If not then report to use and do nothing
         print("No img file found at: " .. tostring(img_filename))
         return
@@ -85,6 +114,7 @@ M.wiki_img_edit = function()
         error("No inkscape executable found. Install before running this cmd.")
     end
     local img_filename = get_img_path_at_current_line()
+    if not img_filename then return end
     -- Check if img exists at path
     if vim.fn.filereadable(tostring(img_filename)) == 0 then
         if vim.fn.isdirectory(path:new(img_filename):parent()) == 0 then
@@ -96,6 +126,65 @@ M.wiki_img_edit = function()
     end
     -- Open found file with inkscape for editing
     inkscape_img(img_filename, false)
+end
+
+M.resolve_wiki_paths = function()
+    -- Get environment table
+    local environ_table = vim.fn.environ()
+
+    -- Get values for both env variables
+    local wikipath = environ_table[M.vimwiki_env]
+    local wikipath_html = environ_table[M.vimwiki_html_env]
+
+    if not wikipath_html then
+        wikipath_html = string.format("%s_html", wikipath)
+    end
+    -- local syspython_bin = environ_table[syspython_bin_env]
+    return vim.fn.expand(wikipath), vim.fn.expand(wikipath_html)
+end
+
+local function check_if_executable(executable)
+    if vim.fn.executable(executable) ~= 1 then
+        error(string.format("%s should be executable.", executable))
+    end
+end
+
+M.wiki_build = function()
+
+    local wikipath, wikipath_html = M.resolve_wiki_paths()
+
+    check_if_executable(M.sphinx_build)
+
+    -- Resolve full command to build wiki
+    -- local sphinx_args = wikipath .. " ~/sphinx_wiki_html -b html"
+    local sphinx_args = string.format("%s %s -b html", wikipath, wikipath_html)
+    -- local sphinx_full_cmd = sphinx_path .. " " .. sphinx_args
+    local sphinx_full_cmd = string.format("%s %s", M.sphinx_build, sphinx_args)
+
+    -- Run with vim-dispatch
+    vim.cmd("Dispatch " .. sphinx_full_cmd)
+end
+
+M.wiki_serve = function()
+
+    local wikipath, wikipath_html = M.resolve_wiki_paths()
+
+    check_if_executable(M.sphinx_autobuild)
+
+    -- Resolve full command to serve wiki
+    local sphinx_args = string.format("%s %s", wikipath, wikipath_html)
+    local sphinx_full_cmd = string.format("%s %s", M.sphinx_autobuild,
+                                          sphinx_args)
+
+    -- Run with vim-dispatch
+    vim.cmd("Dispatch! " .. sphinx_full_cmd)
+
+    local ip_addr = "http://127.0.0.1:8000"
+    local html_file = M.resolve_matching_html_file()
+    local html_url = vim.fn.substitute(html_file, wikipath_html, ip_addr, "")
+    print(string.format("Opening html file at %s", html_file))
+    vim.fn.system('xdg-open ' .. html_file)
+    vim.cmd("!xdg-open " .. html_url)
 end
 
 return M
