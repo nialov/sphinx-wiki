@@ -1,14 +1,10 @@
 local M = {}
 
-local check_env_variables = function(wikipath, syspython_bin)
-    return wikipath and syspython_bin and #wikipath > 0 and #syspython_bin > 0
+local check_env_variables =
+    function(wikipath) return wikipath and #wikipath > 0 end
 
-end
-
-local check_paths = function(wikipath, syspython_bin)
-    return vim.fn.isdirectory(wikipath) == 1 and
-               vim.fn.isdirectory(syspython_bin) == 1
-end
+local check_paths =
+    function(wikipath) return vim.fn.isdirectory(wikipath) == 1 end
 
 M.setup = function()
 
@@ -17,29 +13,26 @@ M.setup = function()
 
     -- Env variables that need to be setup
     local vimwiki_env = "VIMWIKI"
-    local syspython_bin_env = "SYSPYTHON_BIN"
+    -- local syspython_bin_env = "SYSPYTHON_BIN"
 
     -- Get environment table
     local environ_table = vim.fn.environ()
 
     -- Get values for both env variables
     local wikipath = environ_table[vimwiki_env]
-    local syspython_bin = environ_table[syspython_bin_env]
+    -- local syspython_bin = environ_table[syspython_bin_env]
 
     -- Check that variables and their values exist and that they are valid
     -- paths to existing directories.
-    if not check_env_variables(wikipath, syspython_bin) then
-        error(vimwiki_env .. " and " .. syspython_bin_env ..
-                  " must be non-empty defined env variables.")
+    if not check_env_variables(wikipath) then
+        error(vimwiki_env .. " must be non-empty defined env variable.")
     end
-    if not check_paths(wikipath, syspython_bin) then
-        error(string.format(
-                  "Wiki directory at %s and python bin dir at %s must exist.",
-                  wikipath, syspython_bin))
+    if not check_paths(wikipath) then
+        error(string.format("Wiki directory at %s must exist.", wikipath))
     end
 
-    -- Resolve path to sphinx-build executable
-    local sphinx_path = syspython_bin .. "/sphinx-build"
+    -- Sphinx-build should be installed to $PATH (recommended with pipx)
+    local sphinx_path = "sphinx-build"
 
     -- Check it
     if vim.fn.executable(sphinx_path) ~= 1 then
