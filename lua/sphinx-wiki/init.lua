@@ -37,7 +37,7 @@ M.setup = function()
         command! Wiki lua require("sphinx-wiki.utils").wiki()
         command! WikiImgShow lua require("sphinx-wiki.utils").wiki_img_show()
         command! WikiImgEdit lua require("sphinx-wiki.utils").wiki_img_edit()
-        command! WikiOpen lua require("sphinx-wiki.utils").open_wiki_html()
+        command! WikiOpen lua require("sphinx-wiki.utils").open_wiki_url()
         command! WikiServe lua require("sphinx-wiki.utils").wiki_serve()
     ]]
 

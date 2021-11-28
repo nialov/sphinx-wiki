@@ -9,6 +9,7 @@ M.vimwiki_html_env = "VIMWIKI_HTML"
 
 M.sphinx_autobuild = "sphinx-autobuild"
 M.sphinx_build = "sphinx-build"
+M.ip_addr = "http://localhost:8000"
 
 M.check_env_variables = function(wikipath) return wikipath and #wikipath > 0 end
 
@@ -85,10 +86,23 @@ M.resolve_matching_html_file = function()
     return html_file
 end
 
+M.resolve_matching_ip_url = function(html_file)
+    local _, wikipath_html = M.resolve_wiki_paths()
+    -- Uses the resolved html_file path to create url
+    return vim.fn.substitute(html_file, wikipath_html, M.ip_addr, "")
+end
+
 M.open_wiki_html = function()
     local html_file = M.resolve_matching_html_file()
     print(string.format("Opening html file at %s", html_file))
     vim.fn.system('xdg-open ' .. html_file)
+end
+
+M.open_wiki_url = function()
+    -- local html_file = M.resolve_matching_html_file()
+    local html_url = M.resolve_matching_ip_url(M.resolve_matching_html_file())
+    print(string.format("Opening html url at %s", html_url))
+    vim.cmd("!xdg-open " .. html_url)
 end
 
 M.wiki = function()
@@ -179,12 +193,9 @@ M.wiki_serve = function()
     -- Run with vim-dispatch
     vim.cmd("Dispatch! " .. sphinx_full_cmd)
 
-    local ip_addr = "http://127.0.0.1:8000"
-    local html_file = M.resolve_matching_html_file()
-    local html_url = vim.fn.substitute(html_file, wikipath_html, ip_addr, "")
-    print(string.format("Opening html file at %s", html_file))
-    vim.fn.system('xdg-open ' .. html_file)
-    vim.cmd("!xdg-open " .. html_url)
+    -- Open file from url
+    M.open_wiki_url()
+
 end
 
 return M

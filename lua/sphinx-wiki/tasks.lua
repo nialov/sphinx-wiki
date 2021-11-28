@@ -34,6 +34,8 @@ function M.report_completed_tasks_tbl()
     local start_found = false
     -- Collect wanted lines to report_table
     local report_table = {}
+    table.insert(report_table, ".. code:: text")
+    table.insert(report_table, "")
     for _, value in pairs(cmd_result_tbl) do
         -- First wanted line starts with Project
         if string.find(value, "Project") then start_found = true end
@@ -42,9 +44,10 @@ function M.report_completed_tasks_tbl()
             -- Stop appending and iteration if line is empty (end of table)
             if #value == 0 then break end
             -- Append lines to wanted report_table
-            table.insert(report_table, value)
+            table.insert(report_table, string.format("   %s", value))
         end
     end
+    table.insert(report_table, "")
     return vim.fn.join(report_table, "\n") .. "\n"
 end
 
