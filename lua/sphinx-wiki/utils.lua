@@ -131,7 +131,7 @@ M.wiki_img_edit = function()
     if not img_filename then return end
     -- Check if img exists at path
     if vim.fn.filereadable(tostring(img_filename)) == 0 then
-        if vim.fn.isdirectory(path:new(img_filename):parent()) == 0 then
+        if vim.fn.isdirectory(tostring(path:new(img_filename):parent())) == 0 then
             error("No parent directory for img file at: " .. img_filename)
             return
         end
