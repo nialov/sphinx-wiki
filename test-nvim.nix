@@ -8,11 +8,10 @@ let
 
         runtime! plugin/plenary.vim
       '';
-      packages.myVimPackages = with pkgs;
-        with vimPlugins; {
-          start = [ plenary-nvim ];
-          opt = [ ];
-        };
+      packages.main = with pkgs.vimPlugins; {
+        start = [ plenary-nvim ];
+        opt = [ ];
+      };
     };
   };
 in
