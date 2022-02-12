@@ -13,5 +13,4 @@ jobs:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: "Format & Lint & Test"
         run: |
-          nix develop --unset PATH -c pre-commit run --all-files
-          nix develop --unset PATH -c nvim -u tests/minimal_init.vim --noplugin --headless -c 'PlenaryBustedDirectory tests' -c 'cq'
+          ./test.bash

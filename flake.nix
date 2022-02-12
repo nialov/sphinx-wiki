@@ -40,7 +40,8 @@
           buildInputs = with pkgs; [ git test-nvim ];
 
         };
-        packages.test-nvim =
-          pkgs.callPackage ././test-nvim.nix { inherit pkgs; };
+        packages = {
+          test-nvim = pkgs.callPackage ././test-nvim.nix { inherit pkgs; };
+        };
       });
 }
