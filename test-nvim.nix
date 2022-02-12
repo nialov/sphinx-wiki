@@ -6,7 +6,7 @@ let
       customRC = ''
         set runtimepath+=${pkgs.vimPlugins.plenary-nvim}
 
-        runtime! plugin/plenary.nvim
+        runtime! plugin/plenary.vim
       '';
       packages.myVimPackages = with pkgs;
         with vimPlugins; {
