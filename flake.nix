@@ -8,7 +8,9 @@
   };
   outputs = { self, nixpkgs, pre-commit-hooks, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
-      let pkgs = nixpkgs.legacyPackages."${system}";
+      let
+        pkgs = nixpkgs.legacyPackages."${system}";
+        test-nvim = pkgs.callPackage ././test-nvim.nix { inherit pkgs; };
       in
       {
         checks = {
@@ -35,8 +37,10 @@
         };
         devShell = nixpkgs.legacyPackages.${system}.mkShell {
           inherit (self.checks.${system}.pre-commit-check) shellHook;
-          buildInputs = with pkgs; [ git ];
+          buildInputs = with pkgs; [ git test-nvim ];
 
         };
+        packages.test-nvim =
+          pkgs.callPackage ././test-nvim.nix { inherit pkgs; };
       });
 }

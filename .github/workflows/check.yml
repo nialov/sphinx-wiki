@@ -14,3 +14,4 @@ jobs:
       - name: "Format & Lint & Build"
         run: |
           nix develop --unset PATH -c pre-commit run --all-files
+          nix develop --unset PATH -c nvim -u NONE --headless '+:lua require("plenary.test_harness").test_directory_command("tests")'
