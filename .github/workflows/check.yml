@@ -11,7 +11,7 @@ jobs:
       - uses: cachix/install-nix-action@v15
         with:
           nix_path: nixpkgs=channel:nixos-unstable
-      - name: "Format & Lint & Build"
+      - name: "Format & Lint & Test"
         run: |
           nix develop --unset PATH -c pre-commit run --all-files
-          nix develop --unset PATH -c nvim -u NONE --headless '+:lua require("plenary.test_harness").test_directory_command("tests")'
+          nix develop --unset PATH -c nvim -u minimal_init.vim --noplugin --headless -c 'PlenaryBustedDirectory tests' -c 'cq'

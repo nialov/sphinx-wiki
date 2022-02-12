@@ -3,9 +3,9 @@
 let
   myneovim = pkgs.neovim.override {
     configure = {
-      # customRC = ''
-
-      # '';
+      customRC = ''
+        set rtp-=~/.config/nvim
+      '';
       packages.myVimPackages = with pkgs;
         with vimPlugins; {
           start = [
